@@ -1,0 +1,32 @@
+{
+  "name": "certain",
+  "version": "0.0.0",
+  "description": "An Assertion Library",
+  "main": "certain.js",
+  "scripts": {
+    "test": "macchiato test/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:sonewman/certain.git"
+  },
+  "keywords": [
+    "assertion",
+    "library",
+    "certain"
+  ],
+  "author": "Sam Newman",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sonewman/certain/issues"
+  },
+  "homepage": "https://github.com/sonewman/certain",
+  "devDependencies": {
+    "macchiato": "1.0.0"
+  },
+  "dependencies": {
+    "core-util-is": "^1.0.1",
+    "readable-stream": "^1.1.13",
+    "util-extend": "^1.0.1"
+  }
+}
