@@ -15,9 +15,7 @@ certain.throws = true
 // (and failure is certain.throws == false)
 certain.results = false
 
-
 module.exports = certain
-
 
 function Certain(value, inv) {
   this.__val__ = value
@@ -38,14 +36,14 @@ Object.defineProperty(Certain.prototype, 'not', {
 })
 
 
-function assert_(certain, details) {
+function validate(certain, details) {
   var err
   if (!details.ok) err = utils.fail(details)
   if (certain.throws && err) throw err 
   return details
 }
 
-function assertValue(value, expected, inv) {
+function assert_(value, expected, inv) {
   var res = !inv ? value === expected : value !== expected
   return normResult(inv, res, '===', '!==')
 }
@@ -62,9 +60,9 @@ Certain.prototype.assert
     , expected: true
     , msg: msg
     , callee: arguments[1] || isTrue
-  }, assertValue(value, true, inv))
+  }, assert_(value, true, inv))
   
-  return assert_(this, result)
+  return validate(this, result)
 }
 
 Certain.prototype.isFalse
@@ -77,12 +75,12 @@ Certain.prototype.isFalse
     , expected: false
     , msg: msg
     , callee: arguments[1] || isFalse
-  }, assertValue(value, false, inv))
+  }, assert_(value, false, inv))
   
-  return assert_(this, result)
+  return validate(this, result)
 }
 
-function isOK(value, inv) {
+function ok_(value, inv) {
   return normResult(inv, !inv ? !!value : !value, '==', '!=')
 }
 
@@ -93,26 +91,26 @@ Certain.prototype.ok
   
   var result = extend({
     actual: value
-    , expected: expected
+    , expected: !inv ? 'true' : 'false'
     , msg: msg
     , callee: arguments[1] || ok
-  }, isOK(value, inv))
+  }, ok_(value, inv))
 
-  return assert_(this, result)
+  return validate(this, result)
 }
 
 function normEquals(inversed, result) {
   return !inversed ? result : !result
 }
 
-function eqls(actual, expected, inv) {
+function equals_(actual, expected, inv) {
   var result = normEquals(inv, eqs.triple(actual, expected))
   return normResult(inv, result, '===', '!==')
 }
 
 Certain.prototype.equal
 = Certain.prototype.equals
-= function equal(expected, msg) {
+= function equals(expected, msg) {
   var actual = normPrimitive(this.__val__)
   expected = normPrimitive(expected)
 
@@ -121,13 +119,13 @@ Certain.prototype.equal
     actual: actual
     , expected: expected
     , msg: msg
-    , callee: arguments[2] || equal
-  }, eqls(actual, expected, inv))
+    , callee: arguments[2] || equals
+  }, equals_(actual, expected, inv))
 
-  return assert_(this, result)
+  return validate(this, result)
 }
 
-function deepEqls(actual, expected, inv) {
+function deepEquals_(actual, expected, inv) {
   var result = normEquals(inv, eqs.deep(actual, expected))
   return normResult(inv, result, '===', '!==')
 }
@@ -145,16 +143,17 @@ Certain.prototype.deepEqual
     , expected: expected
     , msg: msg
     , callee: arguments[2] || deepEquals
-  }, deepEqls(actual, expected, inv))
+  }, deepEquals_(actual, expected, inv))
 
-  return assert_(this, result)
+  return validate(this, result)
 }
 
-function throws(does, inv) {
+function throws_(does, inv) {
   return normResult(inv, does, 'should', 'should not')
 }
 
 Certain.prototype.throws
+= Certain.prototype.throw
 = Certain.prototype.throwsError
 = function throws(msg) {
   var does = false
@@ -167,7 +166,7 @@ Certain.prototype.throws
     , expected: !inv ? 'throw': 'not throw'
     , msg: msg
     , callee: arguments[2] || throws
-  }, throws(does, inv))
+  }, throws_(does, inv))
 
-  return assert_(this, result)
+  return validate(this, result)
 }
