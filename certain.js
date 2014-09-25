@@ -2,18 +2,15 @@ var assert = require('assert')
 var extend = require('util-extend')
 var eqs = require('./lib/equals')
 var utils = require('./lib/utils')
+var inherits = require('inherits')
+var Readable = require('readable-stream').Readable
 var normPrimitive = utils.normalisePrimitive
 var normResult = utils.normaliseResult
+var DEFAULT_ASSERT_NAME = '(unnamed assert)'
 
 function certain(value) {
   return new Certain(value)
 }
-
-// throws on fail
-certain.throws = true
-// returns results on success
-// (and failure is certain.throws == false)
-certain.results = false
 
 module.exports = certain
 
@@ -22,6 +19,11 @@ function Certain(value, inv) {
   this.__inverted__ = inv || false
 }
 
+certain.Certain = Certain
+
+// throws on fail
+Certain.prototype.THROWS = true
+
 Object.defineProperty(Certain.prototype, 'not', {
   get: function () {
     this.__inverted__ = !this.__inverted__
@@ -29,74 +31,68 @@ Object.defineProperty(Certain.prototype, 'not', {
   }
 })
 
-;['be', 'to', 'does', 'is'].forEach(function (key) {
+;['be', 'to', 'does', 'is', 'it'].forEach(function (key) {
   Object.defineProperty(Certain.prototype, key, {
     get: function () { return this }
   })
 })
-
-
-function validate(certain, details) {
-  var err
-  if (!details.ok) err = utils.fail(details)
-  if (certain.throws && err) throw err 
-  return details
-}
 
 function assert_(value, expected, inv) {
   var res = !inv ? value === expected : value !== expected
   return normResult(inv, res, '===', '!==')
 }
 
+Certain.prototype._validate = function (details) {
+  details.name = details.name || DEFAULT_ASSERT_NAME
+  utils[details.ok ? 'pass' : 'fail'](details)
+
+  if (this.THROWS && details.error)
+    throw details.error
+
+  return details
+}
 
 Certain.prototype.assert
 = Certain.prototype.isTrue
 = Certain.prototype['true']
 = function isTrue(msg) {
-  var value = normPrimitive(this.__val__)
-  var inv = this.__inverted__
-  var result = extend({
-    actual: value
+  var actual = normPrimitive(this.__val__)
+
+  this._validate(extend({
+    actual: actual
     , expected: true
-    , msg: msg
+    , name: msg
     , callee: arguments[1] || isTrue
-  }, assert_(value, true, inv))
-  
-  return validate(this, result)
+  }, assert_(actual, true, this.__inverted__)))
 }
 
 Certain.prototype.isFalse
 = Certain.prototype['false']
 = function isFalse(msg) {
-  var value = normPrimitive(this.__val__)
-  var inv = this.__inverted__
-  var result = extend({
-    actual: value
+  var actual = normPrimitive(this.__val__)
+
+  this._validate(extend({
+    actual: actual
     , expected: false
-    , msg: msg
+    , name: msg
     , callee: arguments[1] || isFalse
-  }, assert_(value, false, inv))
-  
-  return validate(this, result)
+  }, assert_(actual, false, this.__inverted__)))
 }
 
 function ok_(value, inv) {
   return normResult(inv, !inv ? !!value : !value, '==', '!=')
 }
 
-Certain.prototype.ok 
+Certain.prototype.ok
 = function ok(msg) {
-  var value = normPrimitive(this.__val__)
-  var inv = this.__inverted__
-  
-  var result = extend({
-    actual: value
-    , expected: !inv ? 'true' : 'false'
-    , msg: msg
-    , callee: arguments[1] || ok
-  }, ok_(value, inv))
+  var actual = normPrimitive(this.__val__)
 
-  return validate(this, result)
+  this._validate(extend({
+    actual: actual
+    , expected: !this.__inverted__ ? 'true' : 'false'
+    , name: msg
+    , callee: arguments[1] || ok
+  }, ok_(actual, this.__inverted__)))
 }
 
 function normEquals(inversed, result) {
@@ -114,15 +110,12 @@ Certain.prototype.equal
   var actual = normPrimitive(this.__val__)
   expected = normPrimitive(expected)
 
-  var inv = this.__inverted__
-  var result = extend({
+  this._validate(extend({
     actual: actual
     , expected: expected
-    , msg: msg
+    , name: msg
     , callee: arguments[2] || equals
-  }, equals_(actual, expected, inv))
-
-  return validate(this, result)
+  }, equals_(actual, expected, this.__inverted__)))
 }
 
 function deepEquals_(actual, expected, inv) {
@@ -130,22 +123,19 @@ function deepEquals_(actual, expected, inv) {
   return normResult(inv, result, '===', '!==')
 }
 
-Certain.prototype.deepEqual 
-= Certain.prototype.deepEquals 
-= Certain.prototype.eql 
+Certain.prototype.deepEqual
+= Certain.prototype.deepEquals
+= Certain.prototype.eqls
 = function deepEquals(expected, msg) {
   var actual = normPrimitive(this.__val__)
   expected = normPrimitive(expected)
 
-  var inv = this.__inverted__
-  var result = extend({
+  this._validate(extend({
     actual: actual
     , expected: expected
-    , msg: msg
+    , name: msg
     , callee: arguments[2] || deepEquals
-  }, deepEquals_(actual, expected, inv))
-
-  return validate(this, result)
+  }, deepEquals_(actual, expected, this.__inverted__)))
 }
 
 function throws_(does, inv) {
@@ -157,16 +147,46 @@ Certain.prototype.throws
 = Certain.prototype.throwsError
 = function throws(msg) {
   var does = false
-  try { this.__val__() } 
-  catch (err) { does = true }
-  
-  var inv = this.__inverted__
-  var result = extend({
-    actual: does ? 'throws' : 'not throws'
-    , expected: !inv ? 'throw': 'not throw'
-    , msg: msg
-    , callee: arguments[2] || throws
-  }, throws_(does, inv))
+  try { this.__val__() } catch (err) { does = true }
 
-  return validate(this, result)
+  this._validate(extend({
+    actual: does ? 'throws' : 'not throws'
+    , expected: !this.__inverted__ ? 'throw': 'not throw'
+    , name: msg
+    , callee: arguments[2] || throws
+  }, throws_(does, this.__inverted__)))
 }
+
+function ResultsStream () {
+  Readable.call(this, { objectMode: true })
+}
+
+inherits(ResultsStream, Readable)
+
+ResultsStream.prototype._read = function () {}
+
+// certain assertions with a
+function CertainResults(resultsStream, value) {
+  Certain.call(this, value)
+  this.__resultStream__ = resultsStream
+  this.THROWS = false
+}
+
+inherits(CertainResults, Certain)
+
+var validate_ = Certain.prototype._validate
+CertainResults.prototype._validate = function (details) {
+  var v = validate_.call(this, details)
+  this.__resultStream__.push(v)
+}
+
+certain.withResults = function () {
+  var resultsStream = new ResultsStream()
+  function certainResults(value) {
+    return new CertainResults(resultsStream, value)
+  }
+
+  certainResults.readStream = resultsStream
+  return certainResults
+}
+
