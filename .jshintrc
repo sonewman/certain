@@ -2,5 +2,7 @@
   "asi": true,
   "eqeqeq": false,
   "laxcomma": true,
-  "laxbreak": true
+  "laxbreak": true,
+  "boss": true,
+  "expr": true
 }
