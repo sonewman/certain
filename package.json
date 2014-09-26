@@ -22,9 +22,13 @@
   },
   "homepage": "https://github.com/sonewman/certain",
   "devDependencies": {
+    "istanbul": "^0.3.2",
     "macchiato": "1.0.0"
   },
   "dependencies": {
-    "certain": "^1.0.0"
+    "core-util-is": "^1.0.1",
+    "inherits": "^2.0.1",
+    "readable-stream": "^1.1.13",
+    "util-extend": "^1.0.1"
   }
 }
