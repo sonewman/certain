@@ -24,14 +24,21 @@ certain.Certain = Certain
 // throws on fail
 Certain.prototype.THROWS = true
 
-Object.defineProperty(Certain.prototype, 'not', {
-  get: function () {
-    this.__inverted__ = !this.__inverted__
-    return this
-  }
+function invert() {
+  /** jshint validthis:true */
+  this.__inverted__ = !this.__inverted__
+  return this
+}
+
+// keys which invert assertion
+;['not', 'doesnt'].forEach(function (key) {
+  Object.defineProperty(Certain.prototype, key, {
+    get: invert
+  })
 })
 
-;['be', 'to', 'does', 'is', 'it'].forEach(function (key) {
+// chaining keys added for readability
+;['be', 'to', 'does', 'is'].forEach(function (key) {
   Object.defineProperty(Certain.prototype, key, {
     get: function () { return this }
   })
