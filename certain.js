@@ -172,7 +172,7 @@ inherits(ResultsStream, Readable)
 
 ResultsStream.prototype._read = function () {}
 
-// certain assertions with a
+// certain assertions with a results readable stream
 function CertainResults(resultsStream, value) {
   Certain.call(this, value)
   this.__resultStream__ = resultsStream
