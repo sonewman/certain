@@ -39,6 +39,10 @@ certain('a').equals('b') // will throw AssertionError
 certain('a').does.not.equal('b')
 
 certain('a').does.not.equal('a') // will throw AssertionError
+
+certain('a').does.notEqual('b')
+
+certain('a').does.notEqual('a') // will throw AssertionError
 ```
 
 ### #deepEquals(expected, msg) & #*not*.deepEqual(expected, msg)
@@ -51,6 +55,10 @@ certain({ a: 1 }).deepEquals({ a: 2, b: 3 }) // will throw AssertionError
 certain({ a: 1 }).does.not.deepEqual({ a: 2, b: 3 })
 
 certain({ a: 1 }).does.not.deepEqual({ a: 1 }) // will throw AssertionError
+
+certain({ a: 1 }).does.notDeepEqual({ a: 2, b: 3 })
+
+certain({ a: 1 }).does.notEqls({ a: 1 }) // will throw AssertionError
 ```
 
 ### #is.true( msg) & #is.*not*.true(msg)
