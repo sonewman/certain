@@ -57,3 +57,34 @@ describe('not.equals()', function (t) {
   })
 
 })
+
+describe('notEquals()', function (t) {
+  it('Should not throw with two not matching strings', function (t) {
+    certain('a').notEquals('b')
+    t.pass()
+    t.end()
+  })
+  
+  it('Should throw error if equal', function (t) {
+    try {
+      certain('a').notEquals('a')
+      t.fail()
+    } catch (err) {
+      t.pass()
+    }
+    t.end()
+  })
+  
+  it('Should throw with two matching objects', function (t) {
+    var a = { a: 1 }
+    var b = a
+    try {
+      certain(a).notEquals(b)
+      t.fail()
+    } catch (err) {
+      t.pass()
+    }
+    t.end()
+  })
+
+})

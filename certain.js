@@ -125,6 +125,13 @@ Certain.prototype.equal
   }, equals_(actual, expected, this.__inverted__)))
 }
 
+Certain.prototype.notEquals
+= Certain.prototype.notEqual
+= function notEquals(expected, msg) {
+  this.__inverted__ = !this.__inverted__
+  return this.equals(expected, msg)
+}
+
 function deepEquals_(actual, expected, inv) {
   var result = normEquals(inv, eqs.deep(actual, expected))
   return normResult(inv, result, '===', '!==')
@@ -143,6 +150,13 @@ Certain.prototype.deepEqual
     , name: msg
     , callee: arguments[2] || deepEquals
   }, deepEquals_(actual, expected, this.__inverted__)))
+}
+
+Certain.prototype.notDeepEquals
+= Certain.prototype.notEqls
+= function notEquals(expected, msg) {
+  this.__inverted__ = !this.__inverted__
+  return this.deepEquals(expected, msg)
 }
 
 function throws_(does, inv) {
@@ -172,7 +186,7 @@ inherits(ResultsStream, Readable)
 
 ResultsStream.prototype._read = function () {}
 
-// certain assertions with a
+// certain assertions with a result stream
 function CertainResults(resultsStream, value) {
   Certain.call(this, value)
   this.__resultStream__ = resultsStream
