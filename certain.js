@@ -73,6 +73,16 @@ Certain.prototype.assert
   }, assert_(actual, true, this.__inverted__)))
 }
 
+Certain.prototype.fail = function (msg) {
+  this._validate({
+    actual: 'Failed'
+    , expected: 'Pass'
+    , invalidOperator: 'test was expected to'
+    , name: msg
+    , callee: arguments[1] || fail
+  })
+}
+
 Certain.prototype.isFalse
 = Certain.prototype['false']
 = function isFalse(msg) {
