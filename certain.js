@@ -7,6 +7,7 @@ var Readable = require('readable-stream').Readable
 var normPrimitive = utils.normalisePrimitive
 var normResult = utils.normaliseResult
 var DEFAULT_ASSERT_NAME = '(unnamed assert)'
+var IS_STRICT = (function () { return !this }())
 
 function certain(value) {
   return new Certain(value)
@@ -56,7 +57,44 @@ Certain.prototype._validate = function (details) {
   if (this.THROWS && details.error)
     throw details.error
 
+  // details are returned here so that w/ result stream
+  // can wrap this method and get the details then pipe them on
   return details
+}
+
+function caller(args) {
+  var c = IS_STRICT ? null : args.callee
+  return c
+}
+
+Certain.prototype.pass = function pass(msg) {
+  if (this.__inverted__) {
+    this.__inverted__ = !this.__inverted__
+    this.fail(msg)
+  }
+
+  this._validate({
+    ok: true
+    , pass: true
+    , caller: arguments[1] || caller(arguments) || pass
+  })
+}
+
+Certain.prototype.fail = function (msg) {
+  if (this.__inverted__) {
+    this.__inverted__ = !this.__inverted__
+    return this.pass(msg)
+  }
+
+  this._validate({
+    ok: false
+    , fail: true
+    , actual: 'Failed'
+    , expected: 'Pass'
+    , invalidOperator: 'test was expected to'
+    , name: msg
+    , caller: arguments[1] || caller(arguments) || fail
+  })
 }
 
 Certain.prototype.assert
@@ -69,18 +107,8 @@ Certain.prototype.assert
     actual: actual
     , expected: true
     , name: msg
-    , callee: arguments[1] || isTrue
+    , caller: arguments[1] || caller(arguments) || isTrue
   }, assert_(actual, true, this.__inverted__)))
-}
-
-Certain.prototype.fail = function (msg) {
-  this._validate({
-    actual: 'Failed'
-    , expected: 'Pass'
-    , invalidOperator: 'test was expected to'
-    , name: msg
-    , callee: arguments[1] || fail
-  })
 }
 
 Certain.prototype.isFalse
@@ -92,7 +120,7 @@ Certain.prototype.isFalse
     actual: actual
     , expected: false
     , name: msg
-    , callee: arguments[1] || isFalse
+    , caller: arguments[1] || caller(arguments) || isFalse
   }, assert_(actual, false, this.__inverted__)))
 }
 
@@ -108,7 +136,7 @@ Certain.prototype.ok
     actual: actual
     , expected: !this.__inverted__ ? 'true' : 'false'
     , name: msg
-    , callee: arguments[1] || ok
+    , caller: arguments[1] || caller(arguments) || ok
   }, ok_(actual, this.__inverted__)))
 }
 
@@ -131,7 +159,7 @@ Certain.prototype.equal
     actual: actual
     , expected: expected
     , name: msg
-    , callee: arguments[2] || equals
+    , caller: arguments[2] || caller(arguments) || equals
   }, equals_(actual, expected, this.__inverted__)))
 }
 
@@ -139,7 +167,7 @@ Certain.prototype.notEquals
 = Certain.prototype.notEqual
 = function notEquals(expected, msg) {
   this.__inverted__ = !this.__inverted__
-  return this.equals(expected, msg)
+  return this.equals(expected, msg, caller(arguments))
 }
 
 function deepEquals_(actual, expected, inv) {
@@ -158,7 +186,7 @@ Certain.prototype.deepEqual
     actual: actual
     , expected: expected
     , name: msg
-    , callee: arguments[2] || deepEquals
+    , caller: arguments[2] || caller(arguments) || deepEquals
   }, deepEquals_(actual, expected, this.__inverted__)))
 }
 
@@ -166,7 +194,7 @@ Certain.prototype.notDeepEquals
 = Certain.prototype.notEqls
 = function notEquals(expected, msg) {
   this.__inverted__ = !this.__inverted__
-  return this.deepEquals(expected, msg)
+  return this.deepEquals(expected, msg, caller(arguments))
 }
 
 function throws_(does, inv) {
@@ -184,7 +212,7 @@ Certain.prototype.throws
     actual: does ? 'throws' : 'not throws'
     , expected: !this.__inverted__ ? 'throw': 'not throw'
     , name: msg
-    , callee: arguments[2] || throws
+    , caller: arguments[2] || caller(arguments) || throws
   }, throws_(does, this.__inverted__)))
 }
 
