@@ -37,6 +37,10 @@ describe('results-stream', function () {
           t.pass()
           t.end()
           break
+
+        case 4:
+          certain(result.ok).is.true()
+          certain(result.name).equals('custom output')
       }
 
       next()
@@ -48,5 +52,6 @@ describe('results-stream', function () {
     certainResults('a').equals('a')
     certainResults(1).not.equals(2)
     certainResults({}).equals(null)
+    certainResults.custom({ ok: true, name: 'custom output'})
   })
 })

@@ -244,11 +244,17 @@ CertainResults.prototype._validate = function (details) {
 
 certain.withResults = function () {
   var resultsStream = new ResultsStream()
+
   function certainResults(value) {
     return new CertainResults(resultsStream, value)
   }
 
   certainResults.readStream = resultsStream
+  certainResults.custom = function custom(details) {
+    if (details)
+      resultsStream.push(validate(details, false))
+  }
+
   return certainResults
 }
 
