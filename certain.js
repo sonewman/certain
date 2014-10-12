@@ -50,16 +50,20 @@ function assert_(value, expected, inv) {
   return normResult(inv, res, '===', '!==')
 }
 
-Certain.prototype._validate = function (details) {
+function validate(details, shouldThrow) {
   details.name = details.name || DEFAULT_ASSERT_NAME
   utils[details.ok ? 'pass' : 'fail'](details)
 
-  if (this.THROWS && details.error)
+  if (shouldThrow && details.error)
     throw details.error
 
   // details are returned here so that w/ result stream
   // can wrap this method and get the details then pipe them on
   return details
+}
+
+Certain.prototype._validate = function (details) {
+  return validate(details, this.THROWS)
 }
 
 function caller(args) {
