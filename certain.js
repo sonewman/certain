@@ -67,8 +67,7 @@ Certain.prototype._validate = function (details) {
 }
 
 function caller(args) {
-  var c = IS_STRICT ? null : args.callee
-  return c
+  return IS_STRICT ? null : args.callee
 }
 
 Certain.prototype.pass = function pass(msg) {
