@@ -159,7 +159,7 @@ describe('not.deepEquals()', function (t) {
   })
   
   it('Should not throw with two matching objects', function (t) {
-    certain({ a: 1 }).not.deepEquals({ b: 2 })
+    certain({ a: 1 }).notDeepEquals({ b: 2 })
     t.pass()
     t.end()
   })
