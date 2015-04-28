@@ -1,6 +1,5 @@
-var assert = require('assert')
 var extend = require('util-extend')
-var eqs = require('./lib/equals')
+var eqs = require('eqls')
 var utils = require('./lib/utils')
 var inherits = require('inherits')
 var Readable = require('readable-stream').Readable
@@ -83,7 +82,7 @@ Certain.prototype.pass = function pass(msg) {
   })
 }
 
-Certain.prototype.fail = function (msg) {
+Certain.prototype.fail = function fail(msg) {
   if (this.__inverted__) {
     this.__inverted__ = !this.__inverted__
     return this.pass(msg)
