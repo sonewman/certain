@@ -51,6 +51,13 @@ function assert_(value, expected, inv) {
 
 function validate(details, shouldThrow) {
   details.name = details.name || DEFAULT_ASSERT_NAME
+
+  if (details.actual && 'string' !== typeof details.actual)
+    details.actual = JSON.stringify(details.actual);
+
+  if (details.expected && 'string' !== typeof details.expected)
+    details.expected = JSON.stringify(details.expected);
+
   utils[details.ok ? 'pass' : 'fail'](details)
 
   if (shouldThrow && details.error)
