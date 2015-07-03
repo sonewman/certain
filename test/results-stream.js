@@ -22,15 +22,15 @@ describe('results-stream', function () {
           break
 
         case 2:
-          certain(result.expected).equals(2)
-          certain(result.actual).equals(1)
+          certain(result.expected).eqls(2)
+          certain(result.actual).eqls(1)
           certain(result.operator).equals('!==')
           certain(result.ok).is.true()
           break
 
         case 3:
           certain(result.expected).deepEquals(null)
-          certain(result.actual).deepEquals({})
+          certain(JSON.parse(result.actual)).deepEquals({})
           certain(result.operator).equals('===')
           certain(result.ok).is.false()
           certain(result.error instanceof Error).is.true()
