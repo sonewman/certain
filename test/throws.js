@@ -2,7 +2,7 @@ var certain = require('../')
 var describe = require('macchiato')
 
 describe('throws()', function () {
-  
+
   it('Should not throw if function throws', function (t) {
     certain(function () {
       throw new Error('foo')
@@ -10,7 +10,7 @@ describe('throws()', function () {
     t.pass()
     t.end()
   })
-  
+
   it('Should throw if function does not throw', function (t) {
     try {
       certain(function () {
@@ -25,7 +25,7 @@ describe('throws()', function () {
 })
 
 describe('does.not.throw()', function () {
-  
+
   it('Should not throw if function throws', function (t) {
     certain(function () {
       throw new Error('foo')
@@ -33,7 +33,7 @@ describe('does.not.throw()', function () {
     t.pass()
     t.end()
   })
-  
+
   it('Should throw if function does not throw', function (t) {
     try {
       certain(function () {
