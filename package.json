@@ -1,6 +1,6 @@
 {
   "name": "certain",
-  "version": "1.7.0",
+  "version": "1.7.1",
   "description": "An Assertion Library",
   "main": "certain.js",
   "scripts": {
