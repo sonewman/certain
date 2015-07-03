@@ -49,16 +49,31 @@ function assert_(value, expected, inv) {
   return normResult(inv, res, '===', '!==')
 }
 
+var toString = Object.prototype.toString
+function isError(err) {
+  return toString.call(err) === '[object Error]'
+}
+
 function validate(details, shouldThrow) {
+  if (isError(details)) {
+    var err = details
+    details = {
+      name: err.name + ': ' + err.message
+      , error: err
+    }
+  }
+
   details.name = details.name || DEFAULT_ASSERT_NAME
 
-  if (details.actual && 'string' !== typeof details.actual)
-    details.actual = JSON.stringify(details.actual);
+  if (!err) {
+    if (details.actual && 'string' !== typeof details.actual)
+      details.actual = JSON.stringify(details.actual);
 
-  if (details.expected && 'string' !== typeof details.expected)
-    details.expected = JSON.stringify(details.expected);
+    if (details.expected && 'string' !== typeof details.expected)
+      details.expected = JSON.stringify(details.expected);
 
-  utils[details.ok ? 'pass' : 'fail'](details)
+    utils[details.ok ? 'pass' : 'fail'](details)
+  }
 
   if (shouldThrow && details.error)
     throw details.error
@@ -104,6 +119,11 @@ Certain.prototype.fail = function fail(msg) {
     , name: msg
     , caller: arguments[1] || caller(arguments) || fail
   })
+}
+
+Certain.prototype.error = function error(err) {
+  if (!err) err = new Error()
+  this._validate(err)
 }
 
 Certain.prototype.assert
