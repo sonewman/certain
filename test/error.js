@@ -5,7 +5,7 @@ describe('error()', function () {
   it('Should throw if given an error', function (t) {
     var err = new Error('foo')
     try {
-      certain().error(err)
+      certain(err).error()
       t.fail()
     } catch (er) {
       t.equals(err, er)

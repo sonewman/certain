@@ -121,8 +121,12 @@ Certain.prototype.fail = function fail(msg) {
   })
 }
 
-Certain.prototype.error = function error(err) {
-  if (!err) err = new Error()
+Certain.prototype.error
+= function error() {
+  var err = normPrimitive(this.__val__)
+  if (!isError(err))
+    err = new Error()
+
   this._validate(err)
 }
 
