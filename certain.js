@@ -49,9 +49,13 @@ function assert_(value, expected, inv) {
   return normResult(inv, res, '===', '!==')
 }
 
+var errorMatch = /[object [\w]*Error]/;
+var errorNameMatch = /Error/;
+
 var toString = Object.prototype.toString
 function isError(err) {
-  return toString.call(err) === '[object Error]'
+  return errorMatch.exec(toString.call(err))
+    || errorNameMatch.exec(err.name);
 }
 
 function validate(details, shouldThrow) {
@@ -124,6 +128,7 @@ Certain.prototype.fail = function fail(msg) {
 Certain.prototype.error
 = function error() {
   var err = normPrimitive(this.__val__)
+
   if (!isError(err))
     err = new Error()
 
